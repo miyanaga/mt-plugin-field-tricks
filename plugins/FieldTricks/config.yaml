@@ -1,0 +1,37 @@
+id: FieldTricks
+name: FieldTricks
+l10n_class: MT::FieldTricks::L10N
+
+config_settings:
+    FieldTricksCopyPattern:
+        default: "^(.+?)\s*(\d*)$"
+    FieldTricksCopyFormat:
+        default: "%d"
+    FieldTricksCopyColumns:
+        default: 'name,basename,tag'
+
+list_actions:
+    field:
+        copy_fields:
+            label: Copy Fields...
+            order: 1000
+            code: $FieldTricks::MT::FieldTricks::CMS::CustomField::copy_fields
+            input: 1
+            input_label: Amount to copy fields
+            permit_action:
+                permit_action: edit_custom_fields
+                at_least_one: 1
+        copy_to_another_blog:
+            label: Copy To Another Blog or Website...
+            order: 1100
+            code: $FieldTricks::MT::FieldTricks::CMS::CustomField::copy_fields_to_another_blog
+            input: 1
+            input_label: Blog or Website ID to copy fields to
+            permit_action:
+                permit_action: edit_custom_fields
+                at_least_one: 1
+
+applications:
+    cms:
+        callbacks:
+            template_param.list_common: $FieldTricks::MT::FieldTricks::CMS::CustomField::template_param_list_common
