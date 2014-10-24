@@ -10,6 +10,30 @@ config_settings:
     FieldTricksCopyColumns:
         default: 'name,basename,tag'
 
+object_types:
+    entry:
+        entry_prefs_field_options: string meta
+    page:
+        entry_prefs_field_options: string meta
+    blog:
+        entry_prefs_allow_hide_system: integer meta
+        entry_prefs_allow_sort_system: integer meta
+        entry_prefs_allow_only_admin: integer meta
+        entry_prefs_use_each_field_options: integer meta
+        page_prefs_allow_hide_system: integer meta
+        page_prefs_allow_sort_system: integer meta
+        page_prefs_allow_only_admin: integer meta
+        page_prefs_use_each_field_options: integer meta
+    website:
+        entry_prefs_allow_hide_system: integer meta
+        entry_prefs_allow_sort_system: integer meta
+        entry_prefs_allow_only_admin: integer meta
+        entry_prefs_use_each_field_options: integer meta
+        page_prefs_allow_hide_system: integer meta
+        page_prefs_allow_sort_system: integer meta
+        page_prefs_allow_only_admin: integer meta
+        page_prefs_use_each_field_options: integer meta
+
 list_actions:
     field:
         copy_fields:
@@ -33,5 +57,48 @@ list_actions:
 
 applications:
     cms:
+        methods:
+            # Bypass original method
+            save_entry_prefs: $FieldTricks::MT::FieldTricks::CMS::Entry::save_entry_prefs
         callbacks:
             template_param.list_common: $FieldTricks::MT::FieldTricks::CMS::CustomField::template_param_list_common
+            template_param.cfg_entry: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_cfg_entry
+            template_param.edit_entry: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_edit_entry
+            cms_pre_save.blog: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
+            cms_pre_save.website: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
+            cms_pre_save.entry: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
+            cms_pre_save.page: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
+
+        entry_prefs_tweaks:
+            entry_prefs_allow_hide_system:
+                order: 100
+                type: entry
+                label: Allow to hide title field and body editor.
+            entry_prefs_allow_sort_system:
+                order: 200
+                type: entry
+                label: Allow to sort title field and body editor.
+            entry_prefs_allow_only_admin:
+                order: 300
+                type: entry
+                label: Allow to change preference only for blog/website administrator and share it to non-administrators.
+            entry_prefs_use_each_field_options:
+                order: 400
+                type: entry
+                label: Use fields order saved to each entry.
+            page_prefs_allow_hide_system:
+                order: 1100
+                type: page
+                label: Allow to hide title field and body editor.
+            page_prefs_allow_sort_system:
+                order: 1200
+                type: page
+                label: Allow to sort title field and body editor.
+            page_prefs_allow_only_admin:
+                order: 1300
+                type: page
+                label: Allow to change preference only for blog/website administrator and share it to non-administrators.
+            page_prefs_use_each_field_options:
+                order: 1400
+                type: page
+                label: Use fields order saved to each entry.

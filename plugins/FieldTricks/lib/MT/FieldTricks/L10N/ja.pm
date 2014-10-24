@@ -17,6 +17,15 @@ use vars qw( %Lexicon );
     'Fields on blog "[_1]" is not editable to you.' => 'ブログ「[_1]」のカスタムフィールドを操作する権限がありません。',
     'Field basenamed "[_1]" exists on blog "[_2]".' => '"[_1]"というベースネームを持つカスタムフィールドがブログ「[_2]」にはすでに存在します。',
     'Field tag named "[_1]" exists on blog "[_2]".' => '"[_1]"というタグ名を持つカスタムフィールドがブログ「[_2]」にはすでに存在します。',
+
+    'Entry And Page Preference Customizer' => 'ブログ記事・ウェブページ表示設定カスタマイズ',
+    'Open Settings > Compose to customize preference on each blog/website.' => '表示設定をカスタマイズするには各ブログ/ウェブサイトで 設定 > 投稿 を開いてください',
+    'Entry Preference Tweak' => 'ブログ記事の表示設定',
+    'Page Preference Tweak' => 'ウェブページの表示設定',
+    'Allow to hide title field and body editor.' => 'タイトルと本文エディタの非表示を可能にします',
+    'Allow to sort title field and body editor.' => 'タイトルと本文エディタの並べ替えを可能にします',
+    'Allow to change preference only for blog/website administrator and share it to non-administrators.' => 'ブログ/ウェブサイト管理者のみ表示オプションの変更を許可し、管理者でないユーザーに適用します',
+    'Use fields order saved to each entry.' => 'それぞれの記事またはウェブページに保存されたフィールドの並び順を使用します。'
 );
 
 1;
