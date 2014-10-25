@@ -26,6 +26,9 @@ use vars qw( %Lexicon );
     'Allow to sort title field and body editor.' => 'タイトルと本文エディタの並べ替えを可能にします',
     'Allow to change preference only for blog/website administrator and share it to non-administrators.' => 'ブログ/ウェブサイト管理者のみ表示オプションの変更を許可し、管理者でないユーザーに適用します',
     'Use fields order saved to each entry.' => 'それぞれの記事またはウェブページに保存されたフィールドの並び順を使用します。'
+
+    'Use mt:[_1] tag inside mt:EntrySortedFields or mt:EntrySortedFields.'
+        => 'mt:[_1]テンプレートタグは、mt:EntrySortedFields または mt:PageSortedFields の内部で使用してください。',
 );
 
 1;

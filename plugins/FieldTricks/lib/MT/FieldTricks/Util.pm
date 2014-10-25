@@ -4,9 +4,13 @@ use strict;
 use warnings;
 use base qw(Exporter);
 
-our @EXPORT = qw(plugin is_user_editable_the_field is_user_editable_fields_on_blog);
+use Data::Dumper;
+
+our @EXPORT = qw(plugin pp is_user_editable_the_field is_user_editable_fields_on_blog);
 
 sub plugin { MT->component('FieldTricks') }
+
+sub pp { print STDERR Dumper(@_); }
 
 sub is_user_editable_the_field {
     my ( $user, $field ) = @_;

@@ -55,6 +55,15 @@ list_actions:
                 permit_action: edit_custom_fields
                 at_least_one: 1
 
+tags:
+    block:
+        EntrySortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
+        IfSortedFieldIsCustomField?: $FieldTricks::MT::FieldTricks::Tags::hdlr_IfSortedFieldIsCustomField
+    function:
+        SortedFieldType: $FieldTricks::MT::FieldTricks::Tags::hdlr_SortedFieldType
+        SortedFieldValue: $FieldTricks::MT::FieldTricks::Tags::hdlr_SortedFieldValue
+        CustomFieldType: $FieldTricks::MT::FieldTricks::Tags::hdlr_CustomFieldType
+
 applications:
     cms:
         methods:
