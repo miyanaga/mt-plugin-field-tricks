@@ -13,9 +13,9 @@ config_settings:
 
 object_types:
     entry:
-        entry_prefs_field_options: string meta
+        entry_prefs_field_options: text meta
     page:
-        entry_prefs_field_options: string meta
+        entry_prefs_field_options: text meta
     blog:
         entry_prefs_allow_hide_system: integer meta
         entry_prefs_allow_sort_system: integer meta
