@@ -149,7 +149,7 @@ sub template_param_edit_entry {
             ( $displays{$a->{field_name}} || 999 )
                 <=> ( $displays{$b->{field_name}} || 999 )
         } grep {
-            $_->{show_field} = 1 if $displays{$_->{field_id}};
+            $_->{show_field} = $displays{$_->{field_id}} ? 1 : 0;
             1;
         } @{$param->{field_loop}};
 
