@@ -11,6 +11,7 @@ sub template_param_list_common {
     my $include = $tmpl->getElementById('header_include');
     my $node = $tmpl->createElement('setvarblock', { name => 'system_msg', append => 1 });
     $node->innerHTML(q(
+        <__trans_section component="FieldTricks">
         <mt:if name="field_tricks_copied">
             <__trans_section component="FieldTricks">
             <mtapp:statusmsg
@@ -18,20 +19,27 @@ sub template_param_list_common {
                 class="success">
                 <__trans phrase="Successfully copied from [_1] fields." params="<mt:var name='field_tricks_copied' />">
             </mtapp:statusmsg>
-            </__trans_section>
+        </mt:if>
+        <mt:if name="field_tricks_copy_from">
+            <mtapp:statusmsg
+                id="field-tricks-copy-from"
+                class="success">
+                <__trans phrase="Successfully copied from [_1] fields to [_2] fields." params="<mt:var name='field_tricks_copy_from' />%%<mt:var name='field_tricks_copy_to' />">
+            </mtapp:statusmsg>
         </mt:if>
         <mt:if name="field_tricks_error">
-            <__trans_section component="FieldTricks">
             <mtapp:statusmsg
                 id="field-tricks-error"
                 class="error">
                 <mt:var name="field_tricks_error">
             </mtapp:statusmsg>
-            </__trans_section>
         </mt:if>
+        </__trans_section>
     ));
     $tmpl->insertBefore($node, $include);
     $param->{field_tricks_copied} = $app->param('field_tricks_copied');
+    $param->{field_tricks_copy_from} = $app->param('field_tricks_copy_from');
+    $param->{field_tricks_copy_to} = $app->param('field_tricks_copy_to');
     $param->{field_tricks_error} = $app->param('field_tricks_error');
 
     1;
@@ -138,51 +146,55 @@ sub copy_fields_to_another_blog {
     my $user = $app->user;
 
     my $xhr = $app->param('xhr');
-    my $blog_id = $app->param('itemset_action_input');
-    my $blog = MT->model('blog')->load($blog_id)
-        || return return_list_action( $app, $xhr,
-            return_args => { field_tricks_error => plugin->translate('Blog id of "[_1]" is not found.', $blog_id) },
-            cls => 'error',
-            msg => plugin->translate('Blog id of "[_1]" is not found.', $blog_id),
-        );
 
-    unless ( is_user_editable_fields_on_blog($user, $blog) ) {
-        return return_list_action( $app, $xhr,
-            return_args => { field_tricks_error => plugin->translate('Fields on blog "[_1]" is not editable to you.', $blog->name) },
-            cls => 'error',
-            msg => plugin->translate('Blog id of "[_1]" is not found.', $blog->name),
-        );
-    }
+    my $blog_ids = $app->param('itemset_action_input');
+    my @blog_ids = grep { $_ } map { int($_) } split( /\s*,\s*/, $blog_ids );
+    my @blogs = map { MT->model('blog')->load($_) } @blog_ids;
+    @blogs || return return_list_action( $app, $xhr,
+        return_args => { field_tricks_error => plugin->translate('No blogs found ids of [_1].', $blog_ids) },
+        cls => 'error',
+        msg => plugin->translate('No blogs found ids of [_1].', $blog_ids),
+    );
 
     my @id  = $app->param('id');
     my @fields = MT->model('field')->load({id => \@id});
 
     my $copied_fields = 0;
-    foreach my $field ( @fields ) {
-        return return_list_action( $app, $xhr,
-            return_args => { field_tricks_error => plugin->translate('Field basenamed "[_1]" exists on blog "[_2]".', $field->basename, $blog->name) },
-            cls => 'error',
-            msg => plugin->translate('Field basenamed "[_1]" exists on blog "[_2]".', $field->basename, $blog->name),
-        ) if MT->model('field')->exist({ blog_id => $blog_id, basename => $field->basename });
+    foreach my $blog ( @blogs ) {
+        unless ( is_user_editable_fields_on_blog($user, $blog) ) {
+            return return_list_action( $app, $xhr,
+                return_args => { field_tricks_error => plugin->translate('Fields on blog "[_1]" is not editable to you.', $blog->name) },
+                cls => 'error',
+                msg => plugin->translate('Blog id of "[_1]" is not found.', $blog->name),
+            );
+        }
 
-        return return_list_action( $app, $xhr,
-            return_args => { field_tricks_error => plugin->translate('Field tag named "[_1]" exists on blog "[_2]".', $field->tag, $blog->name) },
-            cls => 'error',
-            msg => plugin->translate('Field tag named "[_1]" exists on blog "[_2]".', $field->tag, $blog->name),
-        ) if MT->model('field')->exist({ blog_id => $blog_id, tag => $field->tag });
-    }
+        foreach my $field ( @fields ) {
+            return return_list_action( $app, $xhr,
+                return_args => { field_tricks_error => plugin->translate('Field basenamed "[_1]" exists on blog "[_2]".', $field->basename, $blog->name) },
+                cls => 'error',
+                msg => plugin->translate('Field basenamed "[_1]" exists on blog "[_2]".', $field->basename, $blog->name),
+            ) if MT->model('field')->exist({ blog_id => $blog->id, basename => $field->basename });
 
-    foreach my $field ( @fields ) {
-        $field->blog_id($blog_id);
-        delete $field->{column_values}->{id};
-        $field->save;
-        $copied_fields ++;
+            return return_list_action( $app, $xhr,
+                return_args => { field_tricks_error => plugin->translate('Field tag named "[_1]" exists on blog "[_2]".', $field->tag, $blog->name) },
+                cls => 'error',
+                msg => plugin->translate('Field tag named "[_1]" exists on blog "[_2]".', $field->tag, $blog->name),
+            ) if MT->model('field')->exist({ blog_id => $blog->id, tag => $field->tag });
+        }
+
+        foreach my $field ( @fields ) {
+            $field->blog_id($blog->id);
+            delete $field->{column_values}->{id};
+            $field->save;
+            $copied_fields ++;
+        }
     }
 
     return_list_action( $app, $xhr,
-        return_args => { 'field_tricks_copied' => $copied_fields },
+        return_args => { 'field_tricks_copy_from' => scalar @fields, 'field_tricks_copy_to' => $copied_fields },
         cls => 'success',
-        msg => plugin->translate( 'Successfully copied from [_1] fields.', $copied_fields ),
+        msg => plugin->translate( 'Successfully copied from [_1] fields to [_2] fields.', scalar @fields, $copied_fields ),
     );
 }
 

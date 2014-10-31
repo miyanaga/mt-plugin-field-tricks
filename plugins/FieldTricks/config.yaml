@@ -51,7 +51,7 @@ list_actions:
             order: 1100
             code: $FieldTricks::MT::FieldTricks::CMS::CustomField::copy_fields_to_another_blog
             input: 1
-            input_label: Blog or Website ID to copy fields to
+            input_label: Blog or Website ID or comma separated IDs to copy fields to
             permit_action:
                 permit_action: edit_custom_fields
                 at_least_one: 1
