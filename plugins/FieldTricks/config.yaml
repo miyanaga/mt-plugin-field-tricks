@@ -13,9 +13,9 @@ config_settings:
 
 object_types:
     entry:
-        entry_prefs_field_options: string meta
+        entry_prefs_field_options: text meta
     page:
-        entry_prefs_field_options: string meta
+        entry_prefs_field_options: text meta
     blog:
         entry_prefs_allow_hide_system: integer meta
         entry_prefs_allow_sort_system: integer meta
@@ -51,7 +51,7 @@ list_actions:
             order: 1100
             code: $FieldTricks::MT::FieldTricks::CMS::CustomField::copy_fields_to_another_blog
             input: 1
-            input_label: Blog or Website ID to copy fields to
+            input_label: Blog or Website ID or comma separated IDs to copy fields to
             permit_action:
                 permit_action: edit_custom_fields
                 at_least_one: 1
