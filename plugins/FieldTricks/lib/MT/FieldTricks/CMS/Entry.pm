@@ -117,7 +117,7 @@ sub template_param_edit_entry {
 
     # Reload prefs
     my $prefs_type = "${type}_prefs";
-    my $prefs = $perms->$prefs_type;
+    my $prefs = $perms->$prefs_type || '';
 
     my $available = 1;
     if ( $allow_only_admin && !$perms->can_administer_blog ) {
@@ -134,14 +134,14 @@ sub template_param_edit_entry {
     # Use options of each entry?
     if ( $entry && $use_each_field_options && defined $entry->entry_prefs_field_options ) {
         my $opts = $entry->entry_prefs_field_options;
-        $prefs =~ s/^[^\|]+/$opts/;
+        $prefs =~ s/^[^\|]*/$opts/;
     }
     $param->{entry_prefs_field_options} = $prefs;
 
     # Sort order and visibility
     my ( $fields ) = split(/\|/, $prefs, 2);
     my $order = 1;
-    my %displays = map { $_ => $order++ } split( /\s*,\s*/, $fields );
+    my %displays = map { $_ => $order++ } split( /\s*,\s*/, $fields || '' );
 
     # Reorder field loop if sortable
     if ( $allow_sort_system ) {
