@@ -24,7 +24,8 @@ sub hdlr_EntrySortedFields {
     my $e = $ctx->stash('entry')
         or return $ctx->_no_entry_error();
 
-    my ( $fields ) = split( /\|/, $e->entry_prefs_field_options, 2 );
+    my ( $fields ) = split( /\|/, $e->entry_prefs_field_options || '', 2 );
+    $fields ||= '';
 
     my $result = '';
     foreach my $f ( split(/\s*,\s*/, $fields) ) {
