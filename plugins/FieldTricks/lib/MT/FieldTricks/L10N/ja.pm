@@ -41,6 +41,7 @@ use vars qw( %Lexicon );
 
     'Set display position of [_1] field(s) to [_2].' => '[_1]件のカスタムフィールドの表示位置を[_2]に設定しました。',
     'Display Position' => '表示位置',
+    'Custom Fields' => 'カスタムフィールド',
 );
 
 1;
