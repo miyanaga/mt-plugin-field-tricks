@@ -29,6 +29,18 @@ use vars qw( %Lexicon );
 
     'Use mt:[_1] tag inside mt:EntrySortedFields or mt:EntrySortedFields.'
         => 'mt:[_1]テンプレートタグは、mt:EntrySortedFields または mt:PageSortedFields の内部で使用してください。',
+
+    'Display in Sidebar' => 'サイドバーに表示',
+    'Check to display this custom field in widget of sidebar of edit entry screen.'
+        => '記事またはウェブページの編集画面で、サイドバーのウィジェット内にカスタムフィールドを表示する場合にチェックを付けて下さい。',
+
+    'Display in Main' => 'メインエリアに表示',
+
+    'main' => 'メインエリア',
+    'sidebar' => 'サイドバー',
+
+    'Set display position of [_1] field(s) to [_2].' => '[_1]件のカスタムフィールドの表示位置を[_2]に設定しました。',
+    'Display Position' => '表示位置',
 );
 
 1;
