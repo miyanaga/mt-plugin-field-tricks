@@ -38,6 +38,17 @@ object_types:
         page_prefs_allow_only_admin: integer meta
         page_prefs_use_each_field_options: integer meta
 
+permissions:
+    blog.edit_display_options:
+        group: auth_pub
+        label: Edit Display Options (If Restricted)
+        order: 1000
+        permitted_action:
+            edit_display_options: 1
+    blog.administer_blog:
+        inherit_from:
+            - blog.edit_display_options
+
 list_properties:
     field:
         field_tricks_pos:
@@ -127,34 +138,38 @@ applications:
             cms_pre_save.field: $FieldTricks::MT::FieldTricks::CMS::CustomField::pre_save_field
         entry_prefs_tweaks:
             entry_prefs_allow_hide_system:
-                order: 100
+                order: 1100
                 type: entry
                 label: Allow to hide title field and body editor.
             entry_prefs_allow_sort_system:
-                order: 200
+                order: 1200
                 type: entry
                 label: Allow to sort title field and body editor.
             entry_prefs_allow_only_admin:
-                order: 300
+                order: 1300
                 type: entry
-                label: Allow to change preference only for blog/website administrator and share it to non-administrators.
+                label: Allow to change preference only for permitted users and share it to not permitted users.
+                hint: For example, it lets designers to fix fields order and to allow only writing to writers. The permission is "Edit Display Options" on roles.
             entry_prefs_use_each_field_options:
-                order: 400
+                order: 1400
                 type: entry
                 label: Use fields order saved to each entry.
+                hint: You can loop the fields order by mt:EntrySortedFields and mt:PageSortedFields template tags.
             page_prefs_allow_hide_system:
-                order: 1100
+                order: 2100
                 type: page
                 label: Allow to hide title field and body editor.
             page_prefs_allow_sort_system:
-                order: 1200
+                order: 2200
                 type: page
                 label: Allow to sort title field and body editor.
             page_prefs_allow_only_admin:
-                order: 1300
+                order: 2300
                 type: page
-                label: Allow to change preference only for blog/website administrator and share it to non-administrators.
+                label: Allow to change preference only for permitted users and share it to not permitted users.
+                hint: For example, it lets designers to fix fields order and to allow only writing to writers. The permission is "Edit Display Options" on roles.
             page_prefs_use_each_field_options:
-                order: 1400
+                order: 2400
                 type: page
                 label: Use fields order saved to each entry.
+                hint: You can loop the fields order by mt:EntrySortedFields and mt:PageSortedFields template tags.

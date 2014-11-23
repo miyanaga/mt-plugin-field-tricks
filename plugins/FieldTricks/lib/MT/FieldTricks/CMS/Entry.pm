@@ -45,6 +45,7 @@ sub template_param_cfg_entry {
                         <input type="hidden" name="<mt:var name='name'>" value="0">
                         <mt:var name="label">
                     </label>
+                    <mt:if name="hint"><div class="hint"><mt:var name="hint" /></div></mt:if>
                 </li>
                 </mt:loop>
             </ul>
@@ -85,7 +86,7 @@ sub save_entry_prefs {
     my $q = $app->param;
     my $blog_id = $q->param('blog_id') || return $result;
     my $perms = $app->permissions;
-    return $result unless $perms->can_administer_blog;
+    return $result unless $perms->can_do('edit_display_options');
 
     # Copy to default
     my $prefs_type = $q->param('_type') . '_prefs';
@@ -120,7 +121,7 @@ sub template_param_edit_entry {
     my $prefs = $perms->$prefs_type || '';
 
     my $available = 1;
-    if ( $allow_only_admin && !$perms->can_administer_blog ) {
+    if ( $allow_only_admin && !$perms->can_do('edit_display_options') ) {
         $available = 0;
         my $perm = MT->model('permission')->load({
             blog_id => $blog->id,
@@ -157,7 +158,7 @@ sub template_param_edit_entry {
     }
 
     # Disable display options and sorting if allowed only for admin, and the user is not admin
-    if ( $allow_only_admin && !$perms->can_administer_blog ) {
+    if ( $allow_only_admin && !$perms->can_do('edit_display_options') ) {
 
         # Cancel display options.
         my $include = $tmpl->getElementById('header_include');
