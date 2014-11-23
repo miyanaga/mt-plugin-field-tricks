@@ -344,9 +344,14 @@ MTML
 
 sub pre_save_entry {
     my ( $cb, $app, $obj ) = @_;
-
     $obj->entry_prefs_field_options($app->param('entry_prefs_field_options'));
+    1;
+}
 
+sub pre_preview {
+    my ( $cb, $app, $obj ) = @_;
+    return unless $obj->isa('MT::Entry');
+    $obj->entry_prefs_field_options($app->param('entry_prefs_field_options'));
     1;
 }
 

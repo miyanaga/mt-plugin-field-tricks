@@ -134,6 +134,7 @@ applications:
             cms_pre_save.blog: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
             cms_pre_save.website: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
             cms_pre_save.entry: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
+            cms_pre_preview: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_preview
             cms_pre_save.page: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
             cms_pre_save.field: $FieldTricks::MT::FieldTricks::CMS::CustomField::pre_save_field
         entry_prefs_tweaks:
