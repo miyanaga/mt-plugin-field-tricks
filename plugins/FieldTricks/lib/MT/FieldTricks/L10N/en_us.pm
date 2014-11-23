@@ -4,6 +4,9 @@ use strict;
 
 use base 'MT::FieldTricks::L10N';
 use vars qw( %Lexicon );
-%Lexicon = ();
+%Lexicon = (
+    'main' => 'Main',
+    'sidebar' => 'Sidebar',
+);
 
 1;

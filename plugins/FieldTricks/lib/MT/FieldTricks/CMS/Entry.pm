@@ -288,6 +288,56 @@ sub template_param_edit_entry {
         }
     }
 
+    # Display position
+    my @sidebars;
+    my @new_loop;
+    if ( my $field_loop = $param->{field_loop} ) {
+        for my $field ( @$field_loop ) {
+            my $remain = 1;
+            if ( my $pos = $field->{field_tricks_pos} ) {
+                if ( $field->{field_html} && $pos eq 'sidebar' ) {
+                    $remain = 0;
+                    push @sidebars, $field;
+                }
+            }
+            push @new_loop, $field if $remain;
+        }
+    }
+
+    $param->{field_loop} = \@new_loop;
+
+    if ( @sidebars ) {
+        $param->{field_tricks_sidebar_loop} = \@sidebars;
+
+        my $publish_widget = $tmpl->getElementById('entry-publishing-widget');
+        my $field_widget = $tmpl->createElement('app:widget', {
+            id      => 'entry-field-tricks-widget',
+            label   => plugin->translate('Custom Fields'),
+        });
+
+        $field_widget->innerHTML(<<'MTML');
+<mt:loop id="content_fields" name="field_tricks_sidebar_loop">
+  <mt:var name="field_label" escape="html" setvar="label_encoded">
+  <mt:var name="description" escape="html" setvar="desc_encoded">
+
+  <mtapp:setting
+     id="$field_id"
+     class=""
+     label="$label_encoded"
+     label_class="field-top-label"
+     hint="$desc_encoded"
+     shown="1"
+     content_class="$content_class"
+     show_hint="$show_hint"
+     required="$required">
+    <$mt:var name="field_html"$>
+  </mtapp:setting>
+</mt:loop>
+MTML
+
+        $tmpl->insertBefore($field_widget, $publish_widget);
+    }
+
     1;
 }
 

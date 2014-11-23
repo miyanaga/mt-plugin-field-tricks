@@ -13,7 +13,6 @@ sub template_param_list_common {
     $node->innerHTML(q(
         <__trans_section component="FieldTricks">
         <mt:if name="field_tricks_copied">
-            <__trans_section component="FieldTricks">
             <mtapp:statusmsg
                 id="field-tricks-copied"
                 class="success">
@@ -27,6 +26,13 @@ sub template_param_list_common {
                 <__trans phrase="Successfully copied from [_1] fields to [_2] fields." params="<mt:var name='field_tricks_copy_from' />%%<mt:var name='field_tricks_copy_to' />">
             </mtapp:statusmsg>
         </mt:if>
+        <mt:if name="field_tricks_pos">
+            <mtapp:statusmsg
+                id="field-tricks-pos"
+                class="success">
+                <__trans phrase="Set display position of [_1] field(s) to [_2]." params="<mt:var name='field_tricks_count' _default="0" />%%<mt:var name='field_tricks_pos' />">
+            </mtapp:statusmsg>
+        </mt:if>
         <mt:if name="field_tricks_error">
             <mtapp:statusmsg
                 id="field-tricks-error"
@@ -37,12 +43,105 @@ sub template_param_list_common {
         </__trans_section>
     ));
     $tmpl->insertBefore($node, $include);
-    $param->{field_tricks_copied} = $app->param('field_tricks_copied');
-    $param->{field_tricks_copy_from} = $app->param('field_tricks_copy_from');
-    $param->{field_tricks_copy_to} = $app->param('field_tricks_copy_to');
-    $param->{field_tricks_error} = $app->param('field_tricks_error');
+
+    foreach my $key ( qw(copied copy_from copy_to count pos error) ) {
+        my $p = "field_tricks_$key";
+        $param->{$p} = $app->param($p);
+    }
 
     1;
+}
+
+sub template_param_edit_field {
+    my ( $cb, $app, $param, $tmpl ) = @_;
+
+    my $field = $tmpl->createElement('app:setting', {
+        id      => 'display_in_widget',
+        label   => '<__trans_section component="FieldTricks"><__trans phrase="Display in Sidebar"></__trans_section>',
+        show_hint => 1,
+        hint    => '<__trans_section component="FieldTricks"><__trans phrase="Check to display this custom field in widget of sidebar of edit entry screen."></__trans_section>',
+    });
+
+    $field->innerHTML(q(
+        <__trans_section component="FieldTricks">
+        <ul>
+            <li>
+                <label>
+                    <input type="radio" name="field_tricks_pos" value="main"<mt:unless name="field_tricks_pos" eq="sidebar"> checked="checked"</mt:unless>>
+                    <__trans phrase="Display in Main">
+                </label>
+            </li>
+            <li>
+                <label>
+                    <input type="radio" name="field_tricks_pos" value="sidebar"<mt:if name="field_tricks_pos" eq="sidebar"> checked="checked"</mt:if>>
+                    <__trans phrase="Display in Sidebar">
+                </label>
+            </li>
+        </ul>
+        </__trans_section>
+    ));
+
+    my $after = $tmpl->getElementById('tag');
+    $tmpl->insertAfter($field, $after);
+
+    1;
+}
+
+sub pre_save_field {
+    my ( $cb, $app, $obj, $orig ) = @_;
+
+    my $field_tricks_pos = $app->param('field_tricks_pos') || '';
+    $field_tricks_pos = '' if $field_tricks_pos ne 'sidebar';
+
+    $obj->field_tricks_pos($field_tricks_pos);
+
+    1;
+}
+
+sub _bulk_set_display {
+    my ( $value, $app ) = @_;
+
+    $app->validate_magic or return;
+    my $user = $app->user;
+    my $xhr = $app->param('xhr');
+    my @id  = $app->param('id');
+
+    my $count = 0;
+    if ( my $iter = MT->model('field')->load_iter({id => [@id]}) ) {
+        while( my $field = $iter->() ) {
+            next unless is_user_editable_the_field($user, $field);
+            $value = '' if $value ne 'sidebar';
+            $field->field_tricks_pos($value);
+            $field->save;
+            $count++;
+        }
+    }
+
+    # TODO handle if 0
+
+    return_list_action( $app, $xhr,
+        return_args => { 'field_tricks_count' => $count, 'field_tricks_pos' => plugin->translate($value) },
+        cls => 'success',
+        msg => plugin->translate('Set display position of [_1] field(s) to [_2].', $count, plugin->translate($value)),
+    );
+}
+
+sub bulk_display_in_sidebar {
+    _bulk_set_display('sidebar', @_);
+}
+
+sub bulk_display_in_main {
+    _bulk_set_display('main', @_);
+}
+
+sub display_positions {
+    my @options = (
+        { value => 'sidebar', label => plugin->translate('sidebar') },
+        # TODO
+        # { value => '', label => plugin->translate('main') },
+    );
+
+    \@options;
 }
 
 sub return_list_action {
