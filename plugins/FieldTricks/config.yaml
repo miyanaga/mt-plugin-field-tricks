@@ -115,6 +115,7 @@ list_actions:
 tags:
     block:
         EntrySortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
+        Page/SortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
         IfSortedFieldIsCustomField?: $FieldTricks::MT::FieldTricks::Tags::hdlr_IfSortedFieldIsCustomField
     function:
         SortedFieldType: $FieldTricks::MT::FieldTricks::Tags::hdlr_SortedFieldType
