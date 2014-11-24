@@ -339,6 +339,50 @@ MTML
         $tmpl->insertBefore($field_widget, $publish_widget);
     }
 
+    # Field closer
+    {
+        my $jq_include = $tmpl->createElement('setvarblock', { name => 'jq_js_include', append => 1 });
+        $jq_include->innerHTML(<<'JS');
+    (function($) {
+        $('.field-display-options li input[type=checkbox]').each(function() {
+            var $cb = $(this),
+                $li = $(this).closest('li'),
+                fieldId = $(this).val();
+            var $field = $('#' + fieldId + '-field');
+
+            var $shortcut = $('<a href="#' + fieldId + '-field" class="hidden" style="padding-left: 6px"><img src="<mt:StaticWebPath>images/status_icons/download.gif"></a>');
+            $li.append($shortcut);
+
+            var $closer = $('<a href="javascript:void(0)" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/close.gif"></a>').click(function() {
+                $cb.trigger('click');
+            });
+
+            var $displayOptions = $('<a href="#display-options-detail" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/action.png"></a>');
+            $displayOptions.click(function() {
+                $('#display-options').addClass('active');
+                $('#display-options-detail').show();
+                return true;
+            });
+            $field.find('.field-header label').after($displayOptions).after($closer);
+
+
+            var updateState = function() {
+                var checked = $cb.prop('checked');
+                if ( checked ) {
+                    $shortcut.removeClass('hidden');
+                } else {
+                    $shortcut.addClass('hidden');
+                }
+            };
+
+            $cb.on('change', updateState);
+            updateState();
+        });
+    })(jQuery);
+JS
+        $tmpl->insertBefore($jq_include, $tmpl->getElementById('footer_include'));
+    }
+
     1;
 }
 
