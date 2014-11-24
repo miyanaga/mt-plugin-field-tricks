@@ -45,6 +45,7 @@ sub template_param_cfg_entry {
                         <input type="hidden" name="<mt:var name='name'>" value="0">
                         <mt:var name="label">
                     </label>
+                    <mt:if name="hint"><div class="hint"><mt:var name="hint" /></div></mt:if>
                 </li>
                 </mt:loop>
             </ul>
@@ -85,7 +86,7 @@ sub save_entry_prefs {
     my $q = $app->param;
     my $blog_id = $q->param('blog_id') || return $result;
     my $perms = $app->permissions;
-    return $result unless $perms->can_administer_blog;
+    return $result unless $perms->can_do('edit_display_options');
 
     # Copy to default
     my $prefs_type = $q->param('_type') . '_prefs';
@@ -120,7 +121,7 @@ sub template_param_edit_entry {
     my $prefs = $perms->$prefs_type || '';
 
     my $available = 1;
-    if ( $allow_only_admin && !$perms->can_administer_blog ) {
+    if ( $allow_only_admin && !$perms->can_do('edit_display_options') ) {
         $available = 0;
         my $perm = MT->model('permission')->load({
             blog_id => $blog->id,
@@ -157,7 +158,7 @@ sub template_param_edit_entry {
     }
 
     # Disable display options and sorting if allowed only for admin, and the user is not admin
-    if ( $allow_only_admin && !$perms->can_administer_blog ) {
+    if ( $allow_only_admin && !$perms->can_do('edit_display_options') ) {
 
         # Cancel display options.
         my $include = $tmpl->getElementById('header_include');
@@ -288,14 +289,113 @@ sub template_param_edit_entry {
         }
     }
 
+    # Display position
+    my @sidebars;
+    my @new_loop;
+    if ( my $field_loop = $param->{field_loop} ) {
+        for my $field ( @$field_loop ) {
+            my $remain = 1;
+            if ( my $pos = $field->{field_tricks_pos} ) {
+                if ( $field->{field_html} && $pos eq 'sidebar' ) {
+                    $remain = 0;
+                    push @sidebars, $field;
+                }
+            }
+            push @new_loop, $field if $remain;
+        }
+    }
+
+    $param->{field_loop} = \@new_loop;
+
+    if ( @sidebars ) {
+        $param->{field_tricks_sidebar_loop} = \@sidebars;
+
+        my $publish_widget = $tmpl->getElementById('entry-publishing-widget');
+        my $field_widget = $tmpl->createElement('app:widget', {
+            id      => 'entry-field-tricks-widget',
+            label   => plugin->translate('Custom Fields'),
+        });
+
+        $field_widget->innerHTML(<<'MTML');
+<mt:loop id="content_fields" name="field_tricks_sidebar_loop">
+  <mt:var name="field_label" escape="html" setvar="label_encoded">
+  <mt:var name="description" escape="html" setvar="desc_encoded">
+
+  <mtapp:setting
+     id="$field_id"
+     class=""
+     label="$label_encoded"
+     label_class="field-top-label"
+     hint="$desc_encoded"
+     shown="1"
+     content_class="$content_class"
+     show_hint="$show_hint"
+     required="$required">
+    <$mt:var name="field_html"$>
+  </mtapp:setting>
+</mt:loop>
+MTML
+
+        $tmpl->insertBefore($field_widget, $publish_widget);
+    }
+
+    # Field closer
+    {
+        my $jq_include = $tmpl->createElement('setvarblock', { name => 'jq_js_include', append => 1 });
+        $jq_include->innerHTML(<<'JS');
+    (function($) {
+        $('.field-display-options li input[type=checkbox]').each(function() {
+            var $cb = $(this),
+                $li = $(this).closest('li'),
+                fieldId = $(this).val();
+            var $field = $('#' + fieldId + '-field');
+
+            var $shortcut = $('<a href="#' + fieldId + '-field" class="hidden" style="padding-left: 6px"><img src="<mt:StaticWebPath>images/status_icons/download.gif"></a>');
+            $li.append($shortcut);
+
+            var $closer = $('<a href="javascript:void(0)" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/close.gif"></a>').click(function() {
+                $cb.trigger('click');
+            });
+
+            var $displayOptions = $('<a href="#display-options-detail" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/action.png"></a>');
+            $displayOptions.click(function() {
+                $('#display-options').addClass('active');
+                $('#display-options-detail').show();
+                return true;
+            });
+            $field.find('.field-header label').after($displayOptions).after($closer);
+
+
+            var updateState = function() {
+                var checked = $cb.prop('checked');
+                if ( checked ) {
+                    $shortcut.removeClass('hidden');
+                } else {
+                    $shortcut.addClass('hidden');
+                }
+            };
+
+            $cb.on('change', updateState);
+            updateState();
+        });
+    })(jQuery);
+JS
+        $tmpl->insertBefore($jq_include, $tmpl->getElementById('footer_include'));
+    }
+
     1;
 }
 
 sub pre_save_entry {
     my ( $cb, $app, $obj ) = @_;
-
     $obj->entry_prefs_field_options($app->param('entry_prefs_field_options'));
+    1;
+}
 
+sub pre_preview {
+    my ( $cb, $app, $obj ) = @_;
+    return unless $obj->isa('MT::Entry');
+    $obj->entry_prefs_field_options($app->param('entry_prefs_field_options'));
     1;
 }
 

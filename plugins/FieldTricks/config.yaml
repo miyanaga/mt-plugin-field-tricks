@@ -1,6 +1,7 @@
 id: FieldTricks
 name: FieldTricks
-version: 0.1.1
+version: 0.2.0
+schema_version: 0.15
 l10n_class: MT::FieldTricks::L10N
 
 config_settings:
@@ -12,6 +13,8 @@ config_settings:
         default: 'name,basename,tag'
 
 object_types:
+    field:
+        field_tricks_pos: string(32)
     entry:
         entry_prefs_field_options: text meta
     page:
@@ -35,6 +38,45 @@ object_types:
         page_prefs_allow_only_admin: integer meta
         page_prefs_use_each_field_options: integer meta
 
+permissions:
+    blog.edit_display_options:
+        group: auth_pub
+        label: Edit Display Options (If Restricted)
+        order: 1000
+        permitted_action:
+            edit_display_options: 1
+    blog.administer_blog:
+        inherit_from:
+            - blog.edit_display_options
+
+list_properties:
+    field:
+        field_tricks_pos:
+            base: "__virtual.single_select"
+            display: default
+            order: 1000
+            label: Display Position
+            col: field_tricks_pos
+            single_select_options: $FieldTricks::MT::FieldTricks::CMS::CustomField::display_positions
+            raw: |
+                sub {
+                    my $prop = shift;
+                    my ( $obj ) = @_;
+                    if ( $obj->obj_type eq 'entry' || $obj->obj_type eq 'page' ) {
+                        my $pos = $obj->field_tricks_pos || '';
+                        $pos = 'main' if $pos ne 'sidebar';
+                        MT->component('FieldTricks')->translate($pos);
+                    } else {
+                        '-';
+                    }
+                }
+            sort: |
+                sub {
+                    my $prop = shift;
+                    my ( $terms, $args ) = @_;
+                    $args->{sort} = 'field_tricks_pos';
+                }
+
 list_actions:
     field:
         copy_fields:
@@ -55,10 +97,25 @@ list_actions:
             permit_action:
                 permit_action: edit_custom_fields
                 at_least_one: 1
+        display_in_sidebar:
+            label: Display in Sidebar
+            order: 1200
+            code: $FieldTricks::MT::FieldTricks::CMS::CustomField::bulk_display_in_sidebar
+            permit_action:
+                permit_action: edit_custom_fields
+                at_least_one: 1
+        display_in_main:
+            label: Display in Main
+            order: 1300
+            code: $FieldTricks::MT::FieldTricks::CMS::CustomField::bulk_display_in_main
+            permit_action:
+                permit_action: edit_custom_fields
+                at_least_one: 1
 
 tags:
     block:
         EntrySortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
+        Page/SortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
         IfSortedFieldIsCustomField?: $FieldTricks::MT::FieldTricks::Tags::hdlr_IfSortedFieldIsCustomField
     function:
         SortedFieldType: $FieldTricks::MT::FieldTricks::Tags::hdlr_SortedFieldType
@@ -72,43 +129,49 @@ applications:
             save_entry_prefs: $FieldTricks::MT::FieldTricks::CMS::Entry::save_entry_prefs
         callbacks:
             template_param.list_common: $FieldTricks::MT::FieldTricks::CMS::CustomField::template_param_list_common
+            template_param.edit_field: $FieldTricks::MT::FieldTricks::CMS::CustomField::template_param_edit_field
             template_param.cfg_entry: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_cfg_entry
             template_param.edit_entry: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_edit_entry
             cms_pre_save.blog: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
             cms_pre_save.website: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
             cms_pre_save.entry: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
+            cms_pre_preview: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_preview
             cms_pre_save.page: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
-
+            cms_pre_save.field: $FieldTricks::MT::FieldTricks::CMS::CustomField::pre_save_field
         entry_prefs_tweaks:
             entry_prefs_allow_hide_system:
-                order: 100
+                order: 1100
                 type: entry
                 label: Allow to hide title field and body editor.
             entry_prefs_allow_sort_system:
-                order: 200
+                order: 1200
                 type: entry
                 label: Allow to sort title field and body editor.
             entry_prefs_allow_only_admin:
-                order: 300
+                order: 1300
                 type: entry
-                label: Allow to change preference only for blog/website administrator and share it to non-administrators.
+                label: Allow to change preference only for permitted users and share it to not permitted users.
+                hint: For example, it lets designers to fix fields order and to allow only writing to writers. The permission is "Edit Display Options" on roles.
             entry_prefs_use_each_field_options:
-                order: 400
+                order: 1400
                 type: entry
                 label: Use fields order saved to each entry.
+                hint: You can loop the fields order by mt:EntrySortedFields and mt:PageSortedFields template tags.
             page_prefs_allow_hide_system:
-                order: 1100
+                order: 2100
                 type: page
                 label: Allow to hide title field and body editor.
             page_prefs_allow_sort_system:
-                order: 1200
+                order: 2200
                 type: page
                 label: Allow to sort title field and body editor.
             page_prefs_allow_only_admin:
-                order: 1300
+                order: 2300
                 type: page
-                label: Allow to change preference only for blog/website administrator and share it to non-administrators.
+                label: Allow to change preference only for permitted users and share it to not permitted users.
+                hint: For example, it lets designers to fix fields order and to allow only writing to writers. The permission is "Edit Display Options" on roles.
             page_prefs_use_each_field_options:
-                order: 1400
+                order: 2400
                 type: page
                 label: Use fields order saved to each entry.
+                hint: You can loop the fields order by mt:EntrySortedFields and mt:PageSortedFields template tags.
