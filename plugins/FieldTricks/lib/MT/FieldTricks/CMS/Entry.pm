@@ -133,9 +133,9 @@ sub template_param_edit_entry {
     }
 
     # Use options of each entry?
-    if ( $entry && $use_each_field_options && defined $entry->entry_prefs_field_options ) {
-        my $opts = $entry->entry_prefs_field_options;
-        $prefs =~ s/^[^\|]*/$opts/;
+    if ( $entry && $use_each_field_options ) {
+        my $opts = $app->param('entry_prefs_field_options') || $entry->entry_prefs_field_options;
+        $prefs =~ s/^[^\|]*/$opts/ if $opts;
     }
     $param->{entry_prefs_field_options} = $prefs;
 
@@ -396,6 +396,17 @@ sub pre_preview {
     my ( $cb, $app, $obj ) = @_;
     return unless $obj->isa('MT::Entry');
     $obj->entry_prefs_field_options($app->param('entry_prefs_field_options'));
+    1;
+}
+
+sub template_param_preview_strip {
+    my ( $cb, $app, $param, $tmpl ) = @_;
+
+    push @{$param->{entry_loop}}, {
+        data_name => 'entry_prefs_field_options',
+        data_value => $app->param('entry_prefs_field_options'),
+    };
+
     1;
 }
 

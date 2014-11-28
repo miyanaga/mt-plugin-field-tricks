@@ -1,6 +1,6 @@
 id: FieldTricks
 name: FieldTricks
-version: 0.2.0
+version: 0.2.1
 schema_version: 0.15
 l10n_class: MT::FieldTricks::L10N
 
@@ -115,7 +115,7 @@ list_actions:
 tags:
     block:
         EntrySortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
-        Page/SortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
+        PageSortedFields: $FieldTricks::MT::FieldTricks::Tags::hdlr_EntrySortedFields
         IfSortedFieldIsCustomField?: $FieldTricks::MT::FieldTricks::Tags::hdlr_IfSortedFieldIsCustomField
     function:
         SortedFieldType: $FieldTricks::MT::FieldTricks::Tags::hdlr_SortedFieldType
@@ -132,6 +132,7 @@ applications:
             template_param.edit_field: $FieldTricks::MT::FieldTricks::CMS::CustomField::template_param_edit_field
             template_param.cfg_entry: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_cfg_entry
             template_param.edit_entry: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_edit_entry
+            template_param.preview_strip: $FieldTricks::MT::FieldTricks::CMS::Entry::template_param_preview_strip
             cms_pre_save.blog: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
             cms_pre_save.website: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_blog
             cms_pre_save.entry: $FieldTricks::MT::FieldTricks::CMS::Entry::pre_save_entry
