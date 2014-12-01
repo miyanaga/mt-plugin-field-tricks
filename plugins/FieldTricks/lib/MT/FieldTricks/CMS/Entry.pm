@@ -63,7 +63,7 @@ sub pre_save_blog {
     my ( $cb, $app, $blog ) = @_;
     my $q = $app->param;
 
-    my $screen = $q->param('cfg_screen');
+    my $screen = $q->param('cfg_screen') || '';
     return 1 if $screen ne 'cfg_entry';
 
     my $tweaks = $app->registry('entry_prefs_tweaks') || {};
