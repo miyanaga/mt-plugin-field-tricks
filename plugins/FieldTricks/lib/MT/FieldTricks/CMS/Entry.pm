@@ -150,7 +150,7 @@ sub template_param_edit_entry {
             ( $displays{$a->{field_name}} || 999 )
                 <=> ( $displays{$b->{field_name}} || 999 )
         } grep {
-            $_->{show_field} = $displays{$_->{field_id}} ? 1 : 0;
+            $_->{show_field} = ( $_->{required} || $displays{$_->{field_id}} ) ? 1 : 0;
             1;
         } @{$param->{field_loop}};
 
@@ -267,7 +267,7 @@ sub template_param_edit_entry {
                     $field->{system_field} = 0;
 
                     # Show field override from prefs
-                    $field->{show_field} = $displays{$name} ? 1: 0;
+                    $field->{show_field} = ( $field->{required} || $displays{$name} ) ? 1: 0;
                 }
             }
         }
@@ -349,13 +349,10 @@ MTML
                 $li = $(this).closest('li'),
                 fieldId = $(this).val();
             var $field = $('#' + fieldId + '-field');
+            var $label = $field.find('.field-header label');
 
             var $shortcut = $('<a href="#' + fieldId + '-field" class="hidden" style="padding-left: 6px"><img src="<mt:StaticWebPath>images/status_icons/download.gif"></a>');
             $li.append($shortcut);
-
-            var $closer = $('<a href="javascript:void(0)" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/close.gif"></a>').click(function() {
-                $cb.trigger('click');
-            });
 
             var $displayOptions = $('<a href="#display-options-detail" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/action.png"></a>');
             $displayOptions.click(function() {
@@ -363,7 +360,14 @@ MTML
                 $('#display-options-detail').show();
                 return true;
             });
-            $field.find('.field-header label').after($displayOptions).after($closer);
+            $label.after($displayOptions)
+
+            if ( !$field.hasClass('required') ) {
+                var $closer = $('<a href="javascript:void(0)" style="padding-left: 8px"><img src="<mt:StaticWebPath>images/status_icons/close.gif"></a>').click(function() {
+                    $cb.trigger('click');
+                });
+                $label.after($closer);
+            }
 
 
             var updateState = function() {
