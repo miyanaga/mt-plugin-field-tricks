@@ -11,6 +11,7 @@ use vars qw( %Lexicon );
     'Successfully copied [_1] fields from [_2] of each field.'
         => '[_2]件のカスタムフィールドに対し、それぞれ[_1]個のコピーを作成しました。',
     'Successfully copied from [_1] fields to [_2] fields.' => '[_1]件のカスタムフィールドから[_2]件のコピーを作成しました。',
+    'Successfully copied from [_1] fields.' => '[_1]件のカスタムフィールドをコピーしました。',
     'Amount to copy fields' => 'コピーを作成する数',
     'Blog or Website ID or comma separated IDs to copy fields to' => 'カスタムフィールドをコピーする先のブログまたはウェブサイトのIDまたはカンマ区切りの複数ID',
     'No blogs found ids of [_1].' => 'ID([_1])のブログがいずれも見つかりません。',
