@@ -252,7 +252,7 @@ sub template_param_edit_entry {
     }
 
     # Around field loop
-    if ( $allow_hide_system ) {
+    if ( $allow_hide_system_col ) {
 
         # Arrange fields loop
         my $field_loop = $param->{field_loop};
