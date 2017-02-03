@@ -79,8 +79,7 @@ sub save_entry_prefs {
 
     # Run original first
     require MT::CMS::Entry;
-    defined ( my $result = MT::CMS::Entry::save_entry_prefs(@_) )
-        or return;
+    my $result = MT::CMS::Entry::save_entry_prefs(@_);
 
     # Save as default if administrator
     my $q = $app->param;
