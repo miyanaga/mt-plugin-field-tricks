@@ -1,6 +1,6 @@
 id: FieldTricks
 name: FieldTricks
-version: 0.2.3
+version: 0.2.4
 schema_version: 0.15
 l10n_class: MT::FieldTricks::L10N
 
